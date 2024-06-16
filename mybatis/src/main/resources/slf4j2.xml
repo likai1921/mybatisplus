@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <contextName>gdcdgj-charging-service</contextName>
+    <!-- 定义变量 -->
+    <property name="log.base" value="E:/root/data/logs"/>
+    <Property name="log.name" value="mybatis-plus"/>
+    <Property name="log.level" value="INFO"/>
+    <!-- <property name="CONSOLE_LOG_PATTERN" value="%highlight(%date{yyyy-MM-dd HH:mm:ss.SSS}) %boldYellow([%thread]) %highlight([%-5level])  %boldCyan([%replace(%caller{1}){'\t|Caller.{1}0|\r\n', ''}]) %msg%n"/>-->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy:HH:mm:ss.SSS} [%thread] [%highlight(%-5level)]  [%cyan(%replace(%caller{1}){'\t|Caller.{1}0| at|\r\n', ''})] - %msg %n"/>
+
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!-- 格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 把日至添加进文件 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.base}/info.log</File>
+        <!-- 满1GB 自动清空重新追加(true追加到文件结尾 false清空现存文件 默认true) -->
+        <append>false</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${log.base}/info/info.%d{yyyy-MM-dd}.%i.log.gz</FileNamePattern>
+            <!-- 每天最多1GB log文件 -->
+            <maxFileSize>500MB</maxFileSize>
+            <!-- 日志存最近四天 -->
+            <maxHistory>15</maxHistory>
+            <!-- 日志最大占用1G -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <!-- 日志格式化存储到目的地 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %C{1} [%M:%L] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ERROR-->
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender"><!-- 日志文件会滚动 -->
+        <File>${log.base}/error.log</File>
+        <!-- 满1GB 自动清空重新追加(true追加到文件结尾 false清空现存文件 默认true) -->
+        <append>false</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${log.base}/error/error.%d{yyyy-MM-dd}.%i.log.gz</FileNamePattern>
+            <!-- 每天最多1GB log文件 -->
+            <maxFileSize>500MB</maxFileSize>
+            <!-- 日志存最近四天 -->
+            <maxHistory>15</maxHistory>
+            <!-- 日志最大占用1G -->
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <!-- 日志格式化存储到目的地 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %C{1} [%M:%L] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>  <!-- 用过滤器，只接受INFO级别的日志信息，其余全部过滤掉 -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <!-- 日志记录会消耗性能，但当出现问题的时候，日志又能够帮助我们快速解决问题。那么如何提高打日志的性能呢？在使用logback的时候，推荐使用AsyncAppender异步记录日志。 -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>512</queueSize>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR"/>
+    </appender>
+
+    <!-- 日志输出级别 -->
+    <root level="${log.level}">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC"/>
+        <appender-ref ref="ERROR"/>
+    </root>
+</configuration>
+
